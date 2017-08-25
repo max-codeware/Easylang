@@ -98,6 +98,7 @@ class Block
   def evaluate(env)
     @body.each do |inst|
       inst.evaluate(env)
+      break if inst.is_a? Return
     end
   end
 end
@@ -120,14 +121,114 @@ class If
     if @cond.evaluate(env) then
       @then.evaluate(env)
     else
-      @else.evaluate(env)
+      @else.evaluate(env) if @else
     end
   end
 end
 
+class BinOp
+  
+  # * **argument**: left value of the binary operation
+  # * **argument**: right value of the binary operation
+  def initialize(left,right)
+    @left  = left
+    @right = right
+  end
+  
+  # * **returns**: left value
+  def left
+    return @left
+  end
+  
+  # * **returns**: right value
+  def right
+    return @right
+  end
+end
 
+def Sum < BinOp
+  
+  # * **argument**: see BinOp
+  def initialize(l,r)
+    super
+  end
+  
+  # * **argument**: Environment object
+  # * **returns**: result of sum operation
+  def evaluate(env)
+    return self.left.evaluate(env) + self.right.evaluate(env)
+  end
+end
 
+def Diff < BinOp
 
+  # * **argument**: see BinOp
+  def initialize(l,r)
+    super
+  end
+  
+  # * **argument**: Environment object
+  # * **returns**: result of diff operation
+  def evaluate(env)
+    return self.left.evaluate(env) - self.right.evaluate(env)
+  end
+end
+
+def Mul < BinOp
+
+  # * **argument**: see BinOp
+  def initialize(l,r)
+    super
+  end
+  
+  # * **argument**: Environment object
+  # * **returns**: result of mul operation
+  def evaluate(env)
+    return self.left.evaluate(env) * self.right.evaluate(env)
+  end
+
+end
+
+def Div < BinOp
+
+  # * **argument**: see BinOp
+  def initialize(l,r)
+    super
+  end
+  
+  # * **argument**: Environment object
+  # * **returns**: result of div operation
+  def evaluate(env)
+    return self.left.evaluate(env) / self.right.evaluate(env)
+  end
+
+end
+
+def Pow < BinOp
+
+  # * **argument**: see BinOp
+  def initialize(l,r)
+    super
+  end
+  
+  # * **argument**: Environment object
+  # * **returns**: result of sum operation
+  def evaluate(env)
+    return self.left.evaluate(env) ^ self.right.evaluate(env)
+  end
+
+end
+
+def Void
+
+  def initialize(block)
+    @block = block
+  end
+  
+  def evaluate(env)
+    return block.evaluate(env)
+  end
+end
 
 
 

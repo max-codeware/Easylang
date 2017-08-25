@@ -31,7 +31,6 @@ module Statement
   end
   
   def self.if_statement(cond,_then,_else = nil)
-    return {:type => :if, :cond => cond, :then => _then} if _else == nil
     return {:type => :if, :cond => cond, :then => _then, :else => _else}
   end
   
