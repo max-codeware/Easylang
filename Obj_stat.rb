@@ -1,18 +1,20 @@
 #! /usr/bin/env ruby
 
+require_relative "Environment.rb"
+
 ##
 # Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
 # License:: Distributed under MIT license
 class Number
-  # * **argument**: number value
-  def initialize(n)
-    @n = n
+  # * **argument**: number token
+  def initialize(tk)
+    @tk = tk
   end
   
   # * **argument**: Environment object
-  # * **returns**: number value 
+  # * **returns**: numeric value 
   def evaluate(environment)
-    return @n
+    return @tk.value
   end
 end
 
@@ -20,15 +22,15 @@ end
 # Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
 # License:: Distributed under MIT license
 class Variable
-  # * **argument**: variable name
+  # * **argument**: variable token
   def initialize(name)
-    @name = name
+    @tk = tk
   end
   
   # * **argument**: Environment object
-  # * **returns**: variable value
+  # * **returns**: variable name
   def evaluate(environment)
-    return environment.get_var(@name)
+    return @tk.value
   end
 end
 
@@ -44,7 +46,7 @@ class Program
   # * **argument**: Environment object
   def run(environment)
     @inst.each do |inst|
-      instevaluate(environment)
+      inst.evaluate(environment)
     end
   end
 end
@@ -52,7 +54,7 @@ end
 ##
 # Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
 # License:: Distributed under MIT license
-class String
+class SString
   
   # * **argument**: string content
   def initialize(string)
@@ -72,15 +74,15 @@ end
 # License:: Distributed under MIT license
 class Boolean
   
-  # * **argument**: boolean value
-  def initialize(value)
-    @val = val
+  # * **argument**: boolean token
+  def initialize(tk)
+    @tk = tk
   end
   
   # * **argument**: Environment object
-  # * **returns**:
+  # * **returns**: boolean value
   def evaluate(environment)
-    @val == "true" ? true : false
+    @tk.value == "true" ? true : false
   end
 end
 
@@ -126,13 +128,18 @@ class If
   end
 end
 
+##
+# Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
+# License:: Distributed under MIT license
 class BinOp
   
   # * **argument**: left value of the binary operation
   # * **argument**: right value of the binary operation
-  def initialize(left,right)
+  # * **argument**: line number
+  def initialize(left,right,line)
     @left  = left
     @right = right
+    @line_n = line
   end
   
   # * **returns**: left value
@@ -144,36 +151,61 @@ class BinOp
   def right
     return @right
   end
+  
+  def line
+    return @line
+  end
 end
 
+##
+# Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
+# License:: Distributed under MIT license
 def Sum < BinOp
   
   # * **argument**: see BinOp
-  def initialize(l,r)
+  def initialize(l,r,ln)
     super
   end
   
   # * **argument**: Environment object
   # * **returns**: result of sum operation
   def evaluate(env)
-    return self.left.evaluate(env) + self.right.evaluate(env)
+    left = self.left.evaluate(env) 
+    right =self.right.evaluate(env)
+    if left.is_a? Numeric and right.is_a? Numeric then
+      return left + right
+    else
+      raise "  Math Error: cannot sum #{left.class} with #{right.class}\nFrom line: #{self.line}"
+    end
   end
 end
 
+##
+# Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
+# License:: Distributed under MIT license
 def Diff < BinOp
 
   # * **argument**: see BinOp
-  def initialize(l,r)
+  def initialize(l,r,ln)
     super
   end
   
   # * **argument**: Environment object
   # * **returns**: result of diff operation
   def evaluate(env)
-    return self.left.evaluate(env) - self.right.evaluate(env)
+    left = self.left.evaluate(env) 
+    right =self.right.evaluate(env)
+    if left.is_a? Numeric and right.is_a? Numeric then
+      return left - right
+    else
+      raise "  Math Error: cannot subtract #{right.class} to #{left.class}\nFrom line: #{self.line}"
+    end
   end
 end
 
+##
+# Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
+# License:: Distributed under MIT license
 def Mul < BinOp
 
   # * **argument**: see BinOp
@@ -184,11 +216,20 @@ def Mul < BinOp
   # * **argument**: Environment object
   # * **returns**: result of mul operation
   def evaluate(env)
-    return self.left.evaluate(env) * self.right.evaluate(env)
+    left = self.left.evaluate(env) 
+    right =self.right.evaluate(env)
+    if (left.is_a? Numeric || left.is_a? String) && (right.is_a? Numeric || right.is_a? String) then
+      return left - right
+    else
+      raise "  Math Error: cannot multiply #{left.class} with #{right.class}\nFrom line: #{self.line}"
+    end
   end
 
 end
 
+##
+# Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
+# License:: Distributed under MIT license
 def Div < BinOp
 
   # * **argument**: see BinOp
@@ -199,11 +240,20 @@ def Div < BinOp
   # * **argument**: Environment object
   # * **returns**: result of div operation
   def evaluate(env)
-    return self.left.evaluate(env) / self.right.evaluate(env)
+    left = self.left.evaluate(env) 
+    right =self.right.evaluate(env)
+    if left.is_a? Numeric and right.is_a? Numeric then
+      return left - right
+    else
+      raise "  Math Error: cannot divide #{left.class} for #{right.class}\nFrom line: #{self.line}"
+    end
   end
 
 end
 
+##
+# Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
+# License:: Distributed under MIT license
 def Pow < BinOp
 
   # * **argument**: see BinOp
@@ -214,26 +264,160 @@ def Pow < BinOp
   # * **argument**: Environment object
   # * **returns**: result of sum operation
   def evaluate(env)
-    return self.left.evaluate(env) ^ self.right.evaluate(env)
+    left = self.left.evaluate(env) 
+    right =self.right.evaluate(env)
+    if left.is_a? Numeric and right.is_a? Numeric then
+      return left - right
+    else
+      raise "  Math Error: cannot elevate #{left.class} to #{right.class}\nFrom line: #{self.line}"
+    end
   end
 
 end
 
+##
+# Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
+# License:: Distributed under MIT license
 def Void
 
-  def initialize(block)
+  def initialize(tk,block,args)
+    @tk    = tk
+    @block = block
+    @args  = args
+  end
+  
+  def evaluate(*env)
+    env.set_void(@tk,self)
+  end
+  
+  def execute(args)
+    raise "  Wrong number of arguments for #{tk.value}: #{@args.size} expected but #{args.size} found" +
+    "\nFrom line: #{tk.line}"
+    my_env = Environment.new
+    for i in 0...@args.size do
+      my_env.set_var(@args[i].value,arg[i])
+    end
+    return block.evaluate(my_env)
+  end
+end
+
+##
+# Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
+# License:: Distributed under MIT license
+def Call
+  
+  def initialize(tk,args)
+    @tk = tk
+    @args = args
+  end
+  
+  def evaluate(env)
+    void = env.get_void(@tk)
+    @args.map! do |arg|
+      if arg.tag == :VARIABLE then
+        env.get_var(arg)
+      elsif arg.is_a? SString
+        arg.evaluate(env)
+      else
+        arg.value
+      end
+    end
+    void.execute(@args)
+  end
+end
+
+
+##
+# Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
+# License:: Distributed under MIT license
+class While
+
+
+  def initialize(cond,block)
+    @cond = cond
     @block = block
   end
   
   def evaluate(env)
-    return block.evaluate(env)
+    while cond.evaluate(env)
+      block.evaluete(env)
+    end
   end
 end
 
 
+##
+# Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
+# License:: Distributed under MIT license
+class Until
+ 
+  def initialize(cond,block)
+    @cond = cond
+    @block = block
+  end
+  
+  def evaluate(env)
+    do
+      @block.evaluate(env)
+    until @cond.evaluate(env) 
+  end
+end
 
+##
+# Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
+# License:: Distributed under MIT license
+class Greater < BinOp
 
+end
 
+##
+# Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
+# License:: Distributed under MIT license
+class Smaller < BinOp
+
+end
+
+##
+# Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
+# License:: Distributed under MIT license
+class GreaterEq < BinOp
+
+end
+
+##
+# Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
+# License:: Distributed under MIT license
+class SmallerEq < BinOp
+
+end
+
+##
+# Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
+# License:: Distributed under MIT license
+class Equal < BinOp
+
+end
+
+##
+# Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
+# License:: Distributed under MIT license
+class And < BinOp
+
+end
+
+##
+# Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
+# License:: Distributed under MIT license
+class Or < BinOp
+
+end
+
+##
+# Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
+# License:: Distributed under MIT license
+class Not
+
+end
 
 
 

@@ -16,36 +16,32 @@ class Environment
     return @voids.size
   end
   
-  def new_void(name,vars)
-    new_name = name + "#{vars.size}"
-    if @voids.keys.include? new_name then
-      raise RuntimeError, "  Overload Error: void '#{name}' already defined" unless @voids[name].count_vars = vars.size
+  def new_void(tk,void_obj)
+    if @voids.keys.include? tk.value then
+      raise RuntimeError, "  Overload Error: void '#{tk.value}' already defined\nFrom line: #{tk.line}"
     end
-    environment = Environment.new()
-    vars.each do |var|
-      environment.new_var(var)
-    end
-    @voids[new_name] = environment
+    @voids[tk.value] = void_obj
   end
   
-  def new_var(name)
-    raise RuntimeError, "  Argument Exception: variable '#{name}' already defined" if @vars.keys.include? name
-    @vars[name] = nil
+  def new_var(tk)
+    raise RuntimeError, "  Argument Exception: variable '#{tk.value}' already defined" +
+    "\nFrom line: #{tk.line}\n#{tk.context}\n#{" "*tk.column}" if @vars.keys.include? tk.value
+    @vars[tk.value] = nil
   end
   
-  def set_var(name,value = nil)
-    @vars[name] = value
+  def set_var(tk,value = nil)
+    @vars[tk.value] = value
   end
   
-  def get_var(name)
-    raise RuntimeError, "  Runtime Error: local variable '#{name}' not defined" unless @vars.keys.include? name
-    return @vars[name]
+  def get_var(tk)
+    raise RuntimeError, "  Runtime Error: local variable '#{tk.value}' not defined" +
+    "\nFrom line: #{tk.line}\n#{tk.context}\n#{" "*tk.column}"unless @vars.keys.include? tk.value
+    return @vars[tk.value]
   end
   
-  def get_void(name,num_vars)
-    new_name = name + "#{num_vars}"
-    raise RuntimeError, "  Runtime Error: void '#{name}' not defined" unless @voids.keys.include? name
-    return @voids[new_name]
+  def get_void(tk)
+    raise RuntimeError, "  Runtime Error: void '#{ntk.value}' not defined" unless @voids.keys.include? tk.value
+    return @voids[tk.value]
   end
   
 end
