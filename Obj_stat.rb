@@ -367,35 +367,100 @@ end
 # Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
 # License:: Distributed under MIT license
 class Greater < BinOp
-
+  def initialize(l,r,ln)
+    super
+  end
+  
+  def evaluate(env)
+    my_left = self.left.evaluate(env)
+    my_right = self.right.evaluate(env)
+    if my_left.is_a? Numeric and my_right.is_a? Numeric then
+      return (my_left > my_right) ? true : false
+    else
+      raise "  Argument Error: cannot compare #{my_left.class} with #{my_right.class}" +
+      "\n From line: #{self.line}"
+    end
+  end
 end
 
 ##
 # Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
 # License:: Distributed under MIT license
 class Smaller < BinOp
-
+  def initialize(l,r,ln)
+    super
+  end
+  
+  def evaluate(env)
+    my_left = self.left.evaluate(env)
+    my_right = self.right.evaluate(env)
+    if my_left.is_a? Numeric and my_right.is_a? Numeric then
+      return (my_left < my_right) ? true : false
+    else
+      raise "  Argument Error: cannot compare #{my_left.class} with #{my_right.class}" +
+      "\n From line: #{self.line}"
+    end
+  end
 end
 
 ##
 # Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
 # License:: Distributed under MIT license
 class GreaterEq < BinOp
-
+  def initialize(l,r,ln)
+    super
+  end
+  
+  def evaluate(env)
+    my_left = self.left.evaluate(env)
+    my_right = self.right.evaluate(env)
+    if my_left.is_a? Numeric and my_right.is_a? Numeric then
+      return (my_left >= my_right) ? true : false
+    else
+      raise "  Argument Error: cannot compare #{my_left.class} with #{my_right.class}" +
+      "\n From line: #{self.line}"
+    end
+  end
 end
 
 ##
 # Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
 # License:: Distributed under MIT license
 class SmallerEq < BinOp
-
+  def initialize(l,r,ln)
+    super
+  end
+  
+  def evaluate(env)
+    my_left = self.left.evaluate(env)
+    my_right = self.right.evaluate(env)
+    if my_left.is_a? Numeric and my_right.is_a? Numeric then
+      return (my_left <= my_right) ? true : false
+    else
+      raise "  Argument Error: cannot compare #{my_left.class} with #{my_right.class}" +
+      "\n From line: #{self.line}"
+    end
+  end
 end
 
 ##
 # Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
 # License:: Distributed under MIT license
 class Equal < BinOp
-
+  def initialize(l,r,ln)
+    super
+  end
+  
+  def evaluate(env)
+    my_left = self.left.evaluate(env)
+    my_right = self.right.evaluate(env)
+    if my_left.is_a? Numeric and my_right.is_a? Numeric then
+      return (my_left == my_right) ? true : false
+    else
+      raise "  Argument Error: cannot compare #{my_left.class} with #{my_right.class}" +
+      "\n From line: #{self.line}"
+    end
+  end
 end
 
 ##
