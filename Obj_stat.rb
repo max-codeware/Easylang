@@ -160,7 +160,7 @@ end
 ##
 # Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
 # License:: Distributed under MIT license
-def Sum < BinOp
+class Sum < BinOp
   
   # * **argument**: see BinOp
   def initialize(l,r,ln)
@@ -183,7 +183,7 @@ end
 ##
 # Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
 # License:: Distributed under MIT license
-def Diff < BinOp
+class Diff < BinOp
 
   # * **argument**: see BinOp
   def initialize(l,r,ln)
@@ -206,7 +206,7 @@ end
 ##
 # Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
 # License:: Distributed under MIT license
-def Mul < BinOp
+class Mul < BinOp
 
   # * **argument**: see BinOp
   def initialize(l,r)
@@ -218,7 +218,7 @@ def Mul < BinOp
   def evaluate(env)
     left = self.left.evaluate(env) 
     right =self.right.evaluate(env)
-    if (left.is_a? Numeric || left.is_a? String) && (right.is_a? Numeric || right.is_a? String) then
+    if (left.is_a? Numeric or left.is_a? String) && (right.is_a? Numeric or right.is_a? String) then
       return left - right
     else
       raise "  Math Error: cannot multiply #{left.class} with #{right.class}\nFrom line: #{self.line}"
@@ -230,7 +230,7 @@ end
 ##
 # Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
 # License:: Distributed under MIT license
-def Div < BinOp
+class Div < BinOp
 
   # * **argument**: see BinOp
   def initialize(l,r)
@@ -254,7 +254,7 @@ end
 ##
 # Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
 # License:: Distributed under MIT license
-def Pow < BinOp
+class Pow < BinOp
 
   # * **argument**: see BinOp
   def initialize(l,r)
@@ -278,7 +278,7 @@ end
 ##
 # Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
 # License:: Distributed under MIT license
-def Void
+class Void
 
   def initialize(tk,block,args)
     @tk    = tk
@@ -304,7 +304,7 @@ end
 ##
 # Author:: Massimiliano Dal Mas (mailto:max.codeware@gmail.com)
 # License:: Distributed under MIT license
-def Call
+class Call
   
   def initialize(tk,args)
     @tk = tk
@@ -357,9 +357,9 @@ class Until
   end
   
   def evaluate(env)
-    do
+    begin
       @block.evaluate(env)
-    until @cond.evaluate(env) 
+    end until @cond.evaluate(env) 
   end
 end
 
